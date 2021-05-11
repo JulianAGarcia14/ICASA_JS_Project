@@ -29,3 +29,12 @@ As each node is created, do the following:
 	Calculate chance its connected to another node
 	Roll that dice then connect if successful
 	Do this for all other pre-existing nodes
+--------------------------------------------------------
+Holme-kim preferential attachment
+Essentially Barbasi-Albert but with an added step
+	If an edge is added after rolling the dice
+	add one more edge from the new node to a random
+	neighbor of the node it just attached to.
+	If there arent any nodes to attach to, instead
+	roll the dice again for all pre-existing nodes
+	attaching to the new one.
