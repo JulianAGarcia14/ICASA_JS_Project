@@ -26,9 +26,9 @@ function erdos(prob, vertNum) {
 
 // create a network
 var container = document.getElementById('mynetwork');
-let data = erdos(0.8, 10);
+let data = erdos(0.8, 20);
 
 var options = {};
 
-// initialize your network!
+// initialize network
 var network = new vis.Network(container, data, options);
