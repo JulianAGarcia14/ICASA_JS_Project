@@ -8,10 +8,20 @@
 </head>
 
 <body>
-    <div id="mynetwork"></div>
+    <div id="mynetwork2"></div>
+    Probability: <input type="number" step="any" name="Probability" id="erdosProb"><br>
+    Node Number: <input type="number" name="Node Number" id="erdosNum"><br>
+    <button id="erd" onclick="erdos2(document.getElementById('erdosProb').value,document.getElementById('erdosNum').value)">Create Erdos-Reyni</button>
+
     <script type="text/javascript" src="drawNet.js">
 
     </script>
+    <script>
+        startNetwork();
+        erdos2(0.2, 2);
+    </script>
+
+
 
 
 </body>
