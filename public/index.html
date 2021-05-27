@@ -8,17 +8,48 @@
 </head>
 
 <body>
-    <div id="mynetwork2"></div>
-    Probability: <input type="number" step="any" name="Probability" id="erdosProb"><br>
-    Node Number: <input type="number" name="Node Number" id="erdosNum"><br>
-    <button id="erd" onclick="erdos2(document.getElementById('erdosProb').value,document.getElementById('erdosNum').value)">Create Erdos-Reyni</button>
 
-    <script type="text/javascript" src="drawNet.js">
+    <div class="row">
+        <div class="column">
+            <div id="mynetwork2"></div>
+            Erdos Probability: <input type="number" step="any" name="Probability" id="erdosProb"><br>
+            Erdos Node Number: <input type="number" name="Node Number" id="erdosNum"><br>
+            <button id="erd" onclick="erdos(document.getElementById('erdosProb').value,document.getElementById('erdosNum').value)">Create Erdos-Reyni</button>
+        </div>
 
-    </script>
+        <div class="column">
+            <div id="mynetwork3"></div>
+            <div class="header">
+                <h1>Initialize Barabasi Network</h1>
+            </div>
+            Probability: <input type="number" step="any" name="Probability" id="barabasiProb"><br>
+            Node Number: <input type="number" name="Node Number" id="barabasiNode"><br>
+            <button id="barb1" onclick="barabasiInitialize(document.getElementById('barabasiProb').value,document.getElementById('barabasiNode').value)">Initialize Barabasi-Albert</button>
+
+            <div class="header">
+                <h1>Create Barabasi Network</h1>
+            </div>
+            Number of Nodes to Add: <input type="number" name="Barabasi Number" id="expandBarabasi"><br>
+            <button id="barb2" onclick="createBarabasi(document.getElementById('expandBarabasi').value)">Create Barabasi-Albert</button>
+
+        </div>
+
+        <div class="column">
+
+        </div>
+
+    </div>
+
+
+
+    <script type="text/javascript" src="drawNet.js"></script>
+    <script type="text/javascript" src="drawBarabasi.js"></script>
     <script>
-        startNetwork();
-        erdos2(0.2, 2);
+        drawErdos();
+        erdos(0.2, 2);
+
+        drawBarabasi();
+        barabasiInitialize(0.2, 2);
     </script>
 
 

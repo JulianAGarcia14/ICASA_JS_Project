@@ -1,93 +1,121 @@
-var nodeIds, shadowState, nodesArray, nodes, edgesArray, edges, network;
-/*
+var er_nodeIds, er_shadowState, er_nodesArray, er_nodes, er_edgesArray, er_edges, er_network;
+
 function erdos(prob, vertNum) {
-
-    var nodes = [];
-    var edges = [];
-
-
-    for (var i = 0; i < vertNum; i++) {
-        nodes.push({id: i, label: 'Node'+ i});
-    }
-
-    for (var i = 0; i < vertNum; i++) {
-        for (var j = i+1; j < vertNum; j++) {
-            var p = Math.random();
-            if(p > prob) {
-                edges.push({from: i, to: j});
-            }
-        }
-    }
-
-    var data= {
-        nodes: nodes,
-        edges: edges,
-    };
-    return data;
-}*/
-
-function erdos2(prob, vertNum) {
     prob = parseFloat(prob);
     vertNum = parseInt(vertNum);
-    prob = 1 - prob;
-    var idLen = nodes.length;
+
+    er_nodes.clear();
+    er_edges.clear();
+    er_nodesArray = [];
+    er_edgesArray = [];
+    var idLen = er_nodes.length;
     var idNum;
-    nodes.clear();
-    edges.clear();
-    nodesArray = [];
-    edgesArray = [];
 
     for (var i = 0; i < vertNum; i++) {
         idNum = i + idLen;
-        nodesArray.push({id: idNum, label: 'Node'+ idNum});
+        er_nodesArray.push({id: idNum, label: 'Node'+ idNum});
     }
 
     for (var i = 0; i <= vertNum + idLen; i++) {
         for (var j = i+1; j <= vertNum + idLen; j++) {
             var p = Math.random();
-            if(p > prob) {
-                edgesArray.push({from: i, to: j});
+            if(p <= prob) {
+                er_edgesArray.push({from: i, to: j});
             }
         }
     }
-    nodes.add(nodesArray);
-    edges.add(edgesArray);
-
+    er_nodes.add(er_nodesArray);
+    er_edges.add(er_edgesArray);
+    shadeErdos();
 }
 
-function startNetwork() {
+function shadeErdos() {
+    var idLen = er_nodes.length;
+    for (var i = 0; i < idLen; i++) {
+        var cool = er_network.getConnectedEdges(i).length;
+        var heat = (0.1 * cool);
+        var clickedNode = er_nodes.get(i);
+        clickedNode.color = {
+            border: '#000000',
+            background: 'rgba(240, 0, 0, ' + heat + ')',
+            highlight: {
+                border: '#2B7CE9',
+                background: 'rgba(0, 240, 0, 1)'
+            }
+        }
+        er_nodes.update(clickedNode);
+    }
+}
+
+function drawErdos() {
     // this list is kept to remove a random node.. we do not add node 1 here because it's used for changes
-    nodeIds = [0];
-    shadowState = false;
+    er_nodeIds = [0];
+    er_shadowState = false;
 
     // create an array with nodes
 
-    nodesArray = [
+    er_nodesArray = [
         {id: 0, label: "Node 0"},
     ];
 
-    nodes = new vis.DataSet(nodesArray);
+    er_nodes = new vis.DataSet(er_nodesArray);
     // create an array with edges
 
-    edgesArray = [];
+    er_edgesArray = [];
 
-    edges = new vis.DataSet(edgesArray);
+    er_edges = new vis.DataSet(er_edgesArray);
     // create a network
     var container = document.getElementById("mynetwork2");
     var data = {
-        nodes: nodes,
-        edges: edges,
+        nodes: er_nodes,
+        edges: er_edges,
     };
-    var options = {};
-    network = new vis.Network(container, data, options);
+    var options = {
+        physics: false,
+        nodes: {
+            shape: "dot",
+            scaling: {
+                min: 0.2,
+                max: 1,
+                label: {
+                    min: 2,
+                    max: 10,
+                    drawThreshold: 12,
+                    maxVisible: 20,
+                },
+            },
+            font: {
+                size: 12,
+                face: "Tahoma",
+            },
+        },
+        edges: {
+            width: 0.15,
+            color: { inherit: true },
+            smooth: {
+                type: "continuous",
+            },
+        },
+
+        physics: {
+            enabled: true,
+            solver: "forceAtlas2Based",
+            forceAtlas2Based: {
+                "gravitationalConstant": -1000,
+                "springLength": 25,
+                "springConstant": 0.09,
+                "avoidOverlap": 0.2,
+            },
+        },
+        layout: {
+        },
+        interaction: {
+            tooltipDelay: 200,
+            hideEdgesOnDrag: true,
+            hideEdgesOnZoom: true,
+        },
+
+    };
+    er_network = new vis.Network(container, data, options);
 }
 
-
-// create a network
-//var container = document.getElementById('mynetwork');
-//let data = erdos(0.8, 20);
-
-//var options = {};
-
-// initialize network
-//var network = new vis.Network(container, data, options);
