@@ -36,6 +36,20 @@
 
         <div class="column">
 
+            <div id="mynetwork"></div>
+            <div class="header">
+                <h1>Initialize Holme-Kim Network</h1>
+            </div>
+            Probability: <input type="number" step="any" name="Probability" id="holmeProb"><br>
+            Node Number: <input type="number" name="Node Number" id="holmeNode"><br>
+            <button id="holme" onclick="holmeInitialize(document.getElementById('holmeProb').value,document.getElementById('holmeNode').value)">Initialize Holme-Kim</button>
+
+            <div class="header">
+                <h1>Create Holme-Kim Network</h1>
+            </div>
+            Number of Nodes to Add: <input type="number" name="Holme-Kim Number" id="expandHolme"><br>
+            <button id="holme2" onclick="createHolme(document.getElementById('expandHolme').value)">Create Holme-Kim</button>
+
         </div>
 
     </div>
@@ -44,12 +58,16 @@
 
     <script type="text/javascript" src="drawNet.js"></script>
     <script type="text/javascript" src="drawBarabasi.js"></script>
+    <script type="text/javascript" src="drawHolmeKim.js"></script>
     <script>
         drawErdos();
         erdos(0.2, 2);
 
         drawBarabasi();
         barabasiInitialize(0.2, 2);
+
+        drawHolme();
+        holmeInitialize(0.2, 2);
     </script>
 
 

@@ -1,43 +1,43 @@
-var bar_sumOfDegrees, bar_shadowState, bar_nodesArray, bar_nodes, bar_edgesArray, bar_edges, bar_network;
+var holme_sumOfDegrees, holme_shadowState, holme_nodesArray, holme_nodes, holme_edgesArray, holme_edges, holme_network;
 
-function barabasiInitialize(prob, vertNum) {
+function holmeInitialize(prob, vertNum) {
     prob = parseFloat(prob);
     vertNum = parseInt(vertNum);
     //prob = 1 - prob;
 
-    bar_nodes.clear();
-    bar_edges.clear();
-    bar_nodesArray = [];
-    bar_edgesArray = [];
+    holme_nodes.clear();
+    holme_edges.clear();
+    holme_nodesArray = [];
+    holme_edgesArray = [];
 
-    var idLen = bar_nodes.length;
+    var idLen = holme_nodes.length;
     var idNum;
 
     for (var i = 0; i < vertNum; i++) {
         idNum = i + idLen;
-        bar_nodesArray.push({id: idNum, label: 'Node'+ idNum});
+        holme_nodesArray.push({id: idNum, label: 'Node'+ idNum});
     }
 
     for (var i = 0; i <= vertNum + idLen; i++) {
         for (var j = i+1; j <= vertNum + idLen; j++) {
             var p = Math.random();
             if(p <= prob) {
-                bar_edgesArray.push({from: i, to: j});
-                bar_sumOfDegrees = bar_sumOfDegrees + 1;
+                holme_edgesArray.push({from: i, to: j});
+                holme_sumOfDegrees = holme_sumOfDegrees + 1;
             }
         }
     }
-    bar_nodes.add(bar_nodesArray);
-    bar_edges.add(bar_edgesArray);
-    barShadeByDegree();
+    holme_nodes.add(holme_nodesArray);
+    holme_edges.add(holme_edgesArray);
+    holmeShadeByDegree();
 }
 
-function barShadeByDegree() {
-    var idLen = bar_nodes.length;
+function holmeShadeByDegree() {
+    var idLen = holme_nodes.length;
     for (var i = 0; i < idLen; i++) {
-        var cool = bar_network.getConnectedEdges(i).length;
+        var cool = holme_network.getConnectedEdges(i).length;
         var heat = (0.1 * cool);
-        var clickedNode = bar_nodes.get(i);
+        var clickedNode = holme_nodes.get(i);
         clickedNode.color = {
             border: '#000000',
             background: 'rgba(240, 0, 0, ' + heat + ')',
@@ -46,61 +46,61 @@ function barShadeByDegree() {
                 background: 'rgba(0, 240, 0, 1)'
             }
         }
-        bar_nodes.update(clickedNode);
+        holme_nodes.update(clickedNode);
     }
 }
 
-function barabasiConnect(idNum) {
-    var sumDegree = bar_sumOfDegrees;
+function holmeConnect(idNum) {
+    var sumDegree = holme_sumOfDegrees;
     //var idLen = Object.keys(nodes).length / 2;
-    var idLen = bar_nodes.length;
+    var idLen = holme_nodes.length;
 
 
     for (var i = 0; i < idLen - 1; i++) {
-        var prob = bar_network.getConnectedEdges(i).length / sumDegree;
+        var prob = holme_network.getConnectedEdges(i).length / sumDegree;
         var p = Math.random();
         if(p <= prob) {
-            bar_edges.add({from: idNum, to: i});
-            bar_sumOfDegrees = bar_sumOfDegrees + 1;
+            holme_edges.add({from: idNum, to: i});
+            holme_sumOfDegrees = holme_sumOfDegrees + 1;
         }
     }
 
 }
 
-function createBarabasi(vertNum) {
+function createHolme(vertNum) {
     vertNum = parseInt(vertNum);
-    var idLen = bar_nodes.length;
+    var idLen = holme_nodes.length;
     //var idLen = Object.keys(nodes).length / 2;
     var idNum;
 
     for (var i = 0; i < vertNum; i++) {
         idNum = i + idLen;
-        bar_nodes.add({id: idNum, label: 'Node'+ idNum});
-        barabasiConnect(idNum);
+        holme_nodes.add({id: idNum, label: 'Node'+ idNum});
+        holmeConnect(idNum);
     }
-    barShadeByDegree();
+    holmeShadeByDegree();
 }
 
-function drawBarabasi() {
-    bar_shadowState = false;
-    bar_sumOfDegrees = 0;
+function drawHolme() {
+    holme_shadowState = false;
+    holme_sumOfDegrees = 0;
     // create an array with nodes
 
-    bar_nodesArray = [
+    holme_nodesArray = [
         {id: 0, label: "Node 0"},
     ];
 
-    bar_nodes = new vis.DataSet(bar_nodesArray);
+    holme_nodes = new vis.DataSet(holme_nodesArray);
     // create an array with edges
 
-    bar_edgesArray = [];
+    holme_edgesArray = [];
 
-    bar_edges = new vis.DataSet(bar_edgesArray);
+    holme_edges = new vis.DataSet(holme_edgesArray);
     // create a network
-    var container = document.getElementById("mynetwork3");
+    var container = document.getElementById("mynetwork");
     var data = {
-        nodes: bar_nodes,
-        edges: bar_edges,
+        nodes: holme_nodes,
+        edges: holme_edges,
     };
     //var options = {};
     var options = {
@@ -147,5 +147,5 @@ function drawBarabasi() {
             hideEdgesOnZoom: true,
         },
     };
-    bar_network = new vis.Network(container, data, options);
+    holme_network = new vis.Network(container, data, options);
 }
