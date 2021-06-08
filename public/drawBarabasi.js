@@ -1,4 +1,4 @@
-var bar_sumOfDegrees, bar_shadowState, bar_nodesArray, bar_nodes, bar_edgesArray, bar_edges, bar_network;
+var bar_sumOfDegrees, bar_shadowState, bar_nodesArray, bar_nodes, bar_edgesArray, bar_edges, bar_network, bar_degreeDist, bar_ClusterSum;
 
 function barabasiInitialize(prob, vertNum) {
     prob = parseFloat(prob);
@@ -30,6 +30,7 @@ function barabasiInitialize(prob, vertNum) {
     bar_nodes.add(bar_nodesArray);
     bar_edges.add(bar_edgesArray);
     barShadeByDegree();
+    barabasiWritedata();
 }
 
 function barShadeByDegree() {
@@ -79,10 +80,127 @@ function createBarabasi(vertNum) {
         barabasiConnect(idNum);
     }
     barShadeByDegree();
+    barabasiWritedata();
 }
+
+
+
+function barabasiWritedata() {
+    var idLen = bar_nodes.length;
+    var arr = new Array(5);
+    var localCluster;
+    arr.fill(0);
+    try {
+        for (var i = 0; i < idLen; i++) {
+            var deg = bar_network.getConnectedEdges(i).length;
+            //getting track of degree distribution
+            if(deg > arr.length) {
+                while(arr.length <= deg) {
+                    arr.push(0);
+                }
+            }
+
+            arr[deg] += 1;
+
+
+
+            localCluster = bar_ClusteringCount(i);
+            bar_ClusterSum = bar_ClusterSum + localCluster;
+            bar_nodes.update({
+                id: i,
+                label: 'Node'+ i,
+                title: 'Node ' + i + '\n Degree: ' + deg + '\nLocal Clustering Coefficient: ' + localCluster,
+            });
+        }
+    } catch (err) {
+        alert(err);
+    }
+
+
+    bar_degreeDist = [];
+    for(var j = 0; j < arr.length; j++) {
+        bar_degreeDist.push({ x: j, y: arr[j] });
+    }
+    drawBarabasiDistribution();
+    var globalCluster = bar_ClusterSum / bar_nodes.length;
+
+    document.getElementById("baraCC").textContent= "Global Clustering Coefficient: " + globalCluster;
+    document.getElementById("baraNodes").textContent="# of Nodes: " + bar_nodes.length;
+}
+
+
+function bar_ClusteringCount(currNode) {
+    var totalE = 0;
+    var atMost;
+    var clus = bar_network.getConnectedNodes(currNode);
+    if (clus.length == 1) {
+        totalE = 1;
+        atMost = 1;
+    } else {
+        for (var i = 0; i < clus.length; i++) {
+            var ed = bar_network.getConnectedNodes(clus[i]);
+            for (var j = 0; j < ed.length; j++) {
+                if (binarySearch(clus, ed[j]) === true) {
+                    totalE = totalE + 1;
+                }
+            }
+        }
+
+        totalE = 1.0 * totalE / 2;
+        atMost = 1.0 * clus.length * (clus.length - 1) / 2;
+    }
+
+    //console.log(totalE);
+    var coef
+    if (atMost != 0) {
+        coef = 1.0 * totalE/atMost;
+    } else {
+        coef = 0;
+    }
+
+
+    //console.log(atMost);
+    //console.log(coef);
+    return coef;
+
+}
+
+
+
+function drawBarabasiDistribution() {
+    var bar_chart = new CanvasJS.Chart("barabasiGraph", {
+        animationEnabled: true,
+        zoomEnabled: true,
+        backgroundColor: "rgba(255,255,255,1)",
+        title:{
+            text:"",
+            fontFamily: "Segoe UI",
+        },
+        axisX:{
+            interval: bar_degreeDist.length/5,
+            titleFontSize: 18,
+            title: "Degree"
+        },
+        axisY:{
+            titleFontSize: 18,
+            title: "Amount of nodes"
+        },
+        data: [{
+            type: "column",
+            color: "#ff615d",
+            dataPoints: bar_degreeDist,
+        }]
+    });
+    bar_chart.render();
+
+
+}
+
+
 
 function drawBarabasi() {
     bar_shadowState = false;
+    bar_ClusterSum = 0;
     bar_sumOfDegrees = 0;
     // create an array with nodes
 
@@ -137,11 +255,14 @@ function drawBarabasi() {
                 "springLength": 25,
                 "springConstant": 0.09,
                 "avoidOverlap": 0.2,
+                "damping": 1,
             },
         },
         layout: {
         },
         interaction: {
+            hover:true,
+            hoverConnectedEdges: true,
             tooltipDelay: 200,
             hideEdgesOnDrag: true,
             hideEdgesOnZoom: true,

@@ -1,4 +1,4 @@
-var holme_sumOfDegrees, holme_shadowState, holme_nodesArray, holme_nodes, holme_edgesArray, holme_edges, holme_network;
+var holme_sumOfDegrees, holme_shadowState, holme_nodesArray, holme_nodes, holme_edgesArray, holme_edges, holme_network, holme_degreeDist, holme_ClusterSum;
 
 function holmeInitialize(prob, vertNum) {
     prob = parseFloat(prob);
@@ -7,8 +7,10 @@ function holmeInitialize(prob, vertNum) {
 
     holme_nodes.clear();
     holme_edges.clear();
+
     holme_nodesArray = [];
     holme_edgesArray = [];
+
 
     var idLen = holme_nodes.length;
     var idNum;
@@ -30,6 +32,7 @@ function holmeInitialize(prob, vertNum) {
     holme_nodes.add(holme_nodesArray);
     holme_edges.add(holme_edgesArray);
     holmeShadeByDegree();
+    holmeWritedata();
 }
 
 function holmeShadeByDegree() {
@@ -50,7 +53,46 @@ function holmeShadeByDegree() {
     }
 }
 
-function holmeConnect(idNum) {
+function binarySearch(sortedArray, key){
+    var start = 0;
+    var end = sortedArray.length - 1;
+
+    while (start <= end) {
+        var middle = Math.floor((start + end) / 2);
+
+        if (sortedArray[middle] === key) {
+            // found the key
+            return true;
+        } else if (sortedArray[middle] < key) {
+            // continue searching to the right
+            start = middle + 1;
+        } else {
+            // search searching to the left
+            end = middle - 1;
+        }
+    }
+    // key wasn't found
+    return false;
+}
+
+function neighborConnect(neighborhood, used, idNum) {
+    var nLen = neighborhood.length;
+    var found = false;
+    for (var i = 0; i < nLen - 1; i++) {
+        //console.log(used);
+        if(binarySearch(used, i) === false) {
+            found = true;
+            holme_edges.add({from: idNum, to: i});
+            holme_sumOfDegrees = holme_sumOfDegrees + 1;
+            break;
+        }
+    }
+    if(found === false) {
+        holmeConnect(idNum, true);
+    }
+}
+
+function holmeConnect(idNum, isLooped) {
     var sumDegree = holme_sumOfDegrees;
     //var idLen = Object.keys(nodes).length / 2;
     var idLen = holme_nodes.length;
@@ -62,6 +104,11 @@ function holmeConnect(idNum) {
         if(p <= prob) {
             holme_edges.add({from: idNum, to: i});
             holme_sumOfDegrees = holme_sumOfDegrees + 1;
+            if(isLooped === false) {
+                var neighborhood = holme_network.getConnectedNodes(i);
+                var used = holme_network.getConnectedNodes(idNum);
+                neighborConnect(neighborhood, used, idNum);
+            }
         }
     }
 
@@ -76,13 +123,127 @@ function createHolme(vertNum) {
     for (var i = 0; i < vertNum; i++) {
         idNum = i + idLen;
         holme_nodes.add({id: idNum, label: 'Node'+ idNum});
-        holmeConnect(idNum);
+        holmeConnect(idNum, false);
     }
     holmeShadeByDegree();
+    holmeWritedata();
+}
+
+
+function holmeWritedata() {
+    var idLen = holme_nodes.length;
+    var arr = new Array(5);
+    var localCluster;
+    arr.fill(0);
+    try {
+        for (var i = 0; i < idLen; i++) {
+            var deg = holme_network.getConnectedEdges(i).length;
+            //getting track of degree distribution
+            if(deg > arr.length) {
+                while(arr.length <= deg) {
+                    arr.push(0);
+                }
+            }
+
+            arr[deg] += 1;
+
+
+
+            localCluster = holme_ClusteringCount(i);
+            holme_ClusterSum = holme_ClusterSum + localCluster;
+            holme_nodes.update({
+                id: i,
+                label: 'Node'+ i,
+                title: 'Node ' + i + '\n Degree: ' + deg + '\nLocal Clustering Coefficient: ' + localCluster,
+            });
+        }
+    } catch (err) {
+        alert(err);
+    }
+
+
+    holme_degreeDist = [];
+    for(var j = 0; j < arr.length; j++) {
+        holme_degreeDist.push({ x: j, y: arr[j] });
+    }
+    //console.log(holme_degreeDist);
+    drawHolmeDistribution();
+    var globalCluster = holme_ClusterSum / holme_nodes.length;
+
+    document.getElementById("holmesCC").textContent= "Global Clustering Coefficient: " + globalCluster;
+    document.getElementById("holmesNodes").textContent= '\n # of Nodes: ' + holme_nodes.length;
+
+}
+
+function holme_ClusteringCount(currNode) {
+    var totalE = 0;
+    var atMost;
+    var clus = holme_network.getConnectedNodes(currNode);
+    if (clus.length == 1) {
+        totalE = 1;
+        atMost = 1;
+    } else {
+        for (var i = 0; i < clus.length; i++) {
+            var ed = holme_network.getConnectedNodes(clus[i]);
+            for (var j = 0; j < ed.length; j++) {
+                if (binarySearch(clus, ed[j]) === true) {
+                    totalE = totalE + 1;
+                }
+            }
+        }
+
+        totalE = 1.0 * totalE / 2;
+        atMost = 1.0 * clus.length * (clus.length - 1) / 2;
+    }
+
+    //console.log(totalE);
+    var coef
+    if (atMost != 0) {
+        coef = 1.0 * totalE/atMost;
+    } else {
+        coef = 0;
+    }
+
+
+    //console.log(atMost);
+    //console.log(coef);
+    return coef;
+
+}
+
+
+function drawHolmeDistribution() {
+    var chart = new CanvasJS.Chart("holmeGraph", {
+        animationEnabled: true,
+        zoomEnabled: true,
+        backgroundColor: "rgba(255,255,255,1)",
+        title:{
+            text:"",
+            fontFamily: "Segoe UI",
+        },
+        axisX:{
+            interval: holme_degreeDist.length/5,
+            titleFontSize: 18,
+            title: "Degree",
+        },
+        axisY:{
+            titleFontSize: 18,
+            title: "Amount of nodes"
+        },
+        data: [{
+            type: "column",
+            color: "#ff615d",
+            dataPoints: holme_degreeDist,
+        }]
+    });
+    chart.render();
+
+
 }
 
 function drawHolme() {
     holme_shadowState = false;
+    holme_ClusterSum = 0;
     holme_sumOfDegrees = 0;
     // create an array with nodes
 
@@ -108,11 +269,11 @@ function drawHolme() {
         nodes: {
             shape: "dot",
             scaling: {
-                min: 0.2,
-                max: 1,
+                min: 10,
+                max: 30,
                 label: {
-                    min: 2,
-                    max: 10,
+                    min: 8,
+                    max: 30,
                     drawThreshold: 12,
                     maxVisible: 20,
                 },
@@ -124,8 +285,9 @@ function drawHolme() {
         },
         edges: {
             width: 0.15,
-            color: { inherit: true },
+            color: { inherit: "from" },
             smooth: {
+                //enabled: false,
                 type: "continuous",
             },
         },
@@ -137,11 +299,16 @@ function drawHolme() {
                 "springLength": 25,
                 "springConstant": 0.09,
                 "avoidOverlap": 0.2,
+                "damping": 1,
+
             },
+            "minVelocity": 45,
         },
         layout: {
         },
         interaction: {
+            hover:true,
+            hoverConnectedEdges: true,
             tooltipDelay: 200,
             hideEdgesOnDrag: true,
             hideEdgesOnZoom: true,

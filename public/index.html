@@ -5,54 +5,88 @@
     <title>Basic JavaScript module example</title>
     <link href="style.css" rel="stylesheet">
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/vis-timeline@latest/standalone/umd/vis-timeline-graph2d.min.js"></script>
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+
 </head>
 
 <body>
+<section class="about">
+    <h1 style="text-align: center;">Network Visualization</h1>
+    <div class="about-border"></div>
+</section>
 
     <div class="row">
         <div class="column">
+            <div class="header">
+                <h1>Erdos-Reyni Network</h1>
+            </div>
             <div id="mynetwork2"></div>
+            <span id="erdosCC"> </span>
+            <span id="erdoNodes"> </span>
+            <h2>Create Erdos-Reyni Network</h2>
+
             Erdos Probability: <input type="number" step="any" name="Probability" id="erdosProb"><br>
             Erdos Node Number: <input type="number" name="Node Number" id="erdosNum"><br>
             <button id="erd" onclick="erdos(document.getElementById('erdosProb').value,document.getElementById('erdosNum').value)">Create Erdos-Reyni</button>
+            <p><br><br><br><br><br><br></p>
+            <h2>Erdos-Reyni Degree Distribution</h2>
+            <div id="erdosGraph"></div>
+
         </div>
 
         <div class="column">
-            <div id="mynetwork3"></div>
             <div class="header">
-                <h1>Initialize Barabasi Network</h1>
+                <h1>Barabasi Network</h1>
             </div>
+            <div id="mynetwork3"></div>
+            <span id="baraCC"> </span>
+            <span id="baraNodes"> </span>
+            <h2>Initialize Barabasi Network</h2>
+
             Probability: <input type="number" step="any" name="Probability" id="barabasiProb"><br>
             Node Number: <input type="number" name="Node Number" id="barabasiNode"><br>
             <button id="barb1" onclick="barabasiInitialize(document.getElementById('barabasiProb').value,document.getElementById('barabasiNode').value)">Initialize Barabasi-Albert</button>
 
             <div class="header">
-                <h1>Create Barabasi Network</h1>
+                <h2>Create Barabasi Network</h2>
             </div>
             Number of Nodes to Add: <input type="number" name="Barabasi Number" id="expandBarabasi"><br>
             <button id="barb2" onclick="createBarabasi(document.getElementById('expandBarabasi').value)">Create Barabasi-Albert</button>
 
+            <h2>Barabasi Degree Distribution</h2>
+            <div id="barabasiGraph"></div>
+
         </div>
 
         <div class="column">
-
-            <div id="mynetwork"></div>
             <div class="header">
-                <h1>Initialize Holme-Kim Network</h1>
+                <h1>Holme-Kim Network</h1>
             </div>
+            <div id="mynetwork"></div>
+            <span id="holmesCC"> </span>
+            <span id="holmesNodes"> </span>
+            <h2>Initialize Holme-Kim Network</h2>
             Probability: <input type="number" step="any" name="Probability" id="holmeProb"><br>
             Node Number: <input type="number" name="Node Number" id="holmeNode"><br>
             <button id="holme" onclick="holmeInitialize(document.getElementById('holmeProb').value,document.getElementById('holmeNode').value)">Initialize Holme-Kim</button>
 
             <div class="header">
-                <h1>Create Holme-Kim Network</h1>
+                <h2>Create Holme-Kim Network</h2>
             </div>
             Number of Nodes to Add: <input type="number" name="Holme-Kim Number" id="expandHolme"><br>
             <button id="holme2" onclick="createHolme(document.getElementById('expandHolme').value)">Create Holme-Kim</button>
 
+            <h2>Holme-Kim Degree Distribution</h2>
+            <div id="holmeGraph"></div>
+
         </div>
 
     </div>
+
+<section class="about">
+    <h1 style="text-align: right;">Julian Garcia</h1>
+</section>
 
 
 

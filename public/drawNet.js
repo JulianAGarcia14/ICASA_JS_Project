@@ -1,4 +1,4 @@
-var er_nodeIds, er_shadowState, er_nodesArray, er_nodes, er_edgesArray, er_edges, er_network;
+var er_nodeIds, er_shadowState, er_nodesArray, er_nodes, er_edgesArray, er_edges, er_network, er_degreeDist, er_ClusterSum;
 
 function erdos(prob, vertNum) {
     prob = parseFloat(prob);
@@ -27,6 +27,7 @@ function erdos(prob, vertNum) {
     er_nodes.add(er_nodesArray);
     er_edges.add(er_edgesArray);
     shadeErdos();
+    erdosWritedata();
 }
 
 function shadeErdos() {
@@ -47,9 +48,123 @@ function shadeErdos() {
     }
 }
 
+
+
+function erdosWritedata() {
+    var idLen = er_nodes.length;
+    var arr = new Array(5);
+    var localCluster;
+    arr.fill(0);
+    try {
+        for (var i = 0; i < idLen; i++) {
+            var deg = er_network.getConnectedEdges(i).length;
+            //getting track of degree distribution
+            if(deg > arr.length) {
+                while(arr.length <= deg) {
+                    arr.push(0);
+                }
+            }
+
+            arr[deg] += 1;
+
+
+
+            localCluster = er_ClusteringCount(i);
+            er_ClusterSum = er_ClusterSum + localCluster;
+            er_nodes.update({
+                id: i,
+                label: 'Node'+ i,
+                title: 'Node ' + i + '\n Degree: ' + deg + '\nLocal Clustering Coefficient: ' + localCluster,
+            });
+        }
+    } catch (err) {
+        alert(err);
+    }
+
+
+    er_degreeDist = [];
+    for(var j = 0; j < arr.length; j++) {
+        er_degreeDist.push({ x: j, y: arr[j] });
+    }
+    drawErdosDistribution();
+    var globalCluster = er_ClusterSum / er_nodes.length;
+
+    document.getElementById("erdosCC").textContent= "Global Clustering Coefficient: " + globalCluster;
+    document.getElementById("erdoNodes").textContent="# of Nodes: " + er_nodes.length;
+}
+
+
+function er_ClusteringCount(currNode) {
+    var totalE = 0;
+    var atMost;
+    var clus = er_network.getConnectedNodes(currNode);
+    if (clus.length == 1) {
+        totalE = 1;
+        atMost = 1;
+    } else {
+        for (var i = 0; i < clus.length; i++) {
+            var ed = er_network.getConnectedNodes(clus[i]);
+            for (var j = 0; j < ed.length; j++) {
+                if (binarySearch(clus, ed[j]) === true) {
+                    totalE = totalE + 1;
+                }
+            }
+        }
+
+        totalE = 1.0 * totalE / 2;
+        atMost = 1.0 * clus.length * (clus.length - 1) / 2;
+    }
+
+    //console.log(totalE);
+    var coef
+    if (atMost != 0) {
+        coef = 1.0 * totalE/atMost;
+    } else {
+        coef = 0;
+    }
+
+
+    //console.log(atMost);
+    //console.log(coef);
+    return coef;
+
+}
+
+
+function drawErdosDistribution() {
+    var er_chart = new CanvasJS.Chart("erdosGraph", {
+        animationEnabled: true,
+        zoomEnabled: true,
+        backgroundColor: "rgba(255,255,255,1)",
+        title:{
+            text:"",
+            fontFamily: "Segoe UI",
+        },
+        axisX:{
+            interval: er_degreeDist.length/5,
+            titleFontSize: 18,
+            title: "Degree"
+        },
+        axisY:{
+            titleFontSize: 18,
+            title: "Amount of nodes"
+        },
+        data: [{
+            type: "column",
+            color: "#ff615d",
+            dataPoints: er_degreeDist,
+        }]
+    });
+    er_chart.render();
+
+
+}
+
+
 function drawErdos() {
     // this list is kept to remove a random node.. we do not add node 1 here because it's used for changes
     er_nodeIds = [0];
+    er_ClusterSum = 0;
     er_shadowState = false;
 
     // create an array with nodes
@@ -105,11 +220,14 @@ function drawErdos() {
                 "springLength": 25,
                 "springConstant": 0.09,
                 "avoidOverlap": 0.2,
+                "damping": 1,
             },
         },
         layout: {
         },
         interaction: {
+            hover:true,
+            hoverConnectedEdges: true,
             tooltipDelay: 200,
             hideEdgesOnDrag: true,
             hideEdgesOnZoom: true,
