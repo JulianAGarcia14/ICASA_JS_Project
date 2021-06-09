@@ -10,7 +10,7 @@ app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, '/index.html'));
 })
 
-const port = process.end.PORT|| 3000;
+const port = process.env.PORT|| 3000;
 
 var server = app.listen(port, function () {
     var host = server.address().address
