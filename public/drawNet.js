@@ -1,5 +1,10 @@
 var er_nodeIds, er_shadowState, er_nodesArray, er_nodes, er_edgesArray, er_edges, er_network, er_degreeDist, er_ClusterSum;
 
+/**
+ * Implements erdos reyni algorithm, connecting each node by a given probability
+ * @param  {float} prob Given probability that a node can connect to another
+ * @param  {float} vertNum Number of vertices to create/connect
+ */
 function erdos(prob, vertNum) {
     prob = parseFloat(prob);
     vertNum = parseInt(vertNum);
@@ -30,6 +35,9 @@ function erdos(prob, vertNum) {
     erdosWritedata();
 }
 
+/**
+ * Shades each node by how high its degree is.
+ */
 function shadeErdos() {
     var idLen = er_nodes.length;
     for (var i = 0; i < idLen; i++) {
@@ -49,7 +57,9 @@ function shadeErdos() {
 }
 
 
-
+/**
+ * Writes Clustering Coefficient and Degree to each nodes title.
+ */
 function erdosWritedata() {
     var idLen = er_nodes.length;
     var arr = new Array(5);
@@ -93,7 +103,11 @@ function erdosWritedata() {
     document.getElementById("erdoNodes").textContent="# of Nodes: " + er_nodes.length;
 }
 
-
+/**
+ * Calculates local clustering coefficient by comparing connected nodes of origin node and neighborhood nodes
+ * @param  {node} currNode a given node to be evaluated for clustering coefficient
+ * @return {float}     local clustering coefficient of current node
+ */
 function er_ClusteringCount(currNode) {
     var totalE = 0;
     var atMost;
@@ -130,7 +144,9 @@ function er_ClusteringCount(currNode) {
 
 }
 
-
+/**
+ * Draws the degree distribution using canvas js, takes er_degreeDist as data
+ */
 function drawErdosDistribution() {
     var er_chart = new CanvasJS.Chart("erdosGraph", {
         animationEnabled: true,
@@ -160,7 +176,9 @@ function drawErdosDistribution() {
 
 }
 
-
+/**
+ * Initializes the network drawing along with global variables. Contains options for vis network drawing as well.
+ */
 function drawErdos() {
     // this list is kept to remove a random node.. we do not add node 1 here because it's used for changes
     er_nodeIds = [0];

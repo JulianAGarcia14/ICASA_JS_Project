@@ -1,5 +1,10 @@
 var holme_sumOfDegrees, holme_shadowState, holme_nodesArray, holme_nodes, holme_edgesArray, holme_edges, holme_network, holme_degreeDist, holme_ClusterSum;
 
+/**
+ * Implements erdos reyni algorithm to later use as base for Holme-Kim, connecting each node by a given probability
+ * @param  {float} prob Given probability that a node can connect to another
+ * @param  {float} vertNum Number of vertices to create/connect
+ */
 function holmeInitialize(prob, vertNum) {
     prob = parseFloat(prob);
     vertNum = parseInt(vertNum);
@@ -35,6 +40,9 @@ function holmeInitialize(prob, vertNum) {
     holmeWritedata();
 }
 
+/**
+ * Shades each node by how high its degree is.
+ */
 function holmeShadeByDegree() {
     var idLen = holme_nodes.length;
     for (var i = 0; i < idLen; i++) {
@@ -53,6 +61,11 @@ function holmeShadeByDegree() {
     }
 }
 
+/**
+ * Simple binary search to look for key in a sorted array
+ * @param  {array} sortedArray array to be parsed
+ * @param  {key} key key to be found
+ */
 function binarySearch(sortedArray, key){
     var start = 0;
     var end = sortedArray.length - 1;
@@ -75,6 +88,12 @@ function binarySearch(sortedArray, key){
     return false;
 }
 
+/**
+ * Randomly connects a neighbor or repeats holmeConnect
+ * @param  {array} neighborhood list of nodes connected to the node who's neighborhood we're looking at
+ * @param  {array} used List of nodes the newly added node is already connected to
+ * @param  {int} idNum Id of the newest node
+ */
 function neighborConnect(neighborhood, used, idNum) {
     var nLen = neighborhood.length;
     var found = false;
@@ -92,6 +111,11 @@ function neighborConnect(neighborhood, used, idNum) {
     }
 }
 
+/**
+ * Handles the work of connecting nodes based on degree
+ * @param  {int} idNum id of node that is being added
+ * @param  {boolean} isLooped Tells us whether we're repeating the step in the case where there is no neighbor to connect to
+ */
 function holmeConnect(idNum, isLooped) {
     var sumDegree = holme_sumOfDegrees;
     //var idLen = Object.keys(nodes).length / 2;
@@ -114,6 +138,10 @@ function holmeConnect(idNum, isLooped) {
 
 }
 
+/**
+ * Implements holme-kim algorithm to add as many nodes as desired, updates the visualization
+ * @param  {int} vertNum number of nodes to be added using algorithm
+ */
 function createHolme(vertNum) {
     vertNum = parseInt(vertNum);
     var idLen = holme_nodes.length;
@@ -129,7 +157,9 @@ function createHolme(vertNum) {
     holmeWritedata();
 }
 
-
+/**
+ * Writes Clustering Coefficient and Degree to each nodes title.
+ */
 function holmeWritedata() {
     var idLen = holme_nodes.length;
     var arr = new Array(5);
@@ -175,6 +205,11 @@ function holmeWritedata() {
 
 }
 
+/**
+ * Calculates local clustering coefficient by comparing connected nodes of origin node and neighborhood nodes
+ * @param  {node} currNode a given node to be evaluated for clustering coefficient
+ * @return {float}     local clustering coefficient of current node
+ */
 function holme_ClusteringCount(currNode) {
     var totalE = 0;
     var atMost;
@@ -211,7 +246,9 @@ function holme_ClusteringCount(currNode) {
 
 }
 
-
+/**
+ * Draws the degree distribution using canvas js, takes holme_degreeDist as data
+ */
 function drawHolmeDistribution() {
     var chart = new CanvasJS.Chart("holmeGraph", {
         animationEnabled: true,
@@ -241,6 +278,9 @@ function drawHolmeDistribution() {
 
 }
 
+/**
+ * Initializes the network drawing along with global variables. Contains options for vis network drawing as well.
+ */
 function drawHolme() {
     holme_shadowState = false;
     holme_ClusterSum = 0;

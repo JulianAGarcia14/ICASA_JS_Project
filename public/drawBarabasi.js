@@ -1,5 +1,10 @@
 var bar_sumOfDegrees, bar_shadowState, bar_nodesArray, bar_nodes, bar_edgesArray, bar_edges, bar_network, bar_degreeDist, bar_ClusterSum;
 
+/**
+ * Implements erdos reyni algorithm to later use as base for barabasi, connecting each node by a given probability
+ * @param  {float} prob Given probability that a node can connect to another
+ * @param  {float} vertNum Number of vertices to create/connect
+ */
 function barabasiInitialize(prob, vertNum) {
     prob = parseFloat(prob);
     vertNum = parseInt(vertNum);
@@ -33,6 +38,9 @@ function barabasiInitialize(prob, vertNum) {
     barabasiWritedata();
 }
 
+/**
+ * Shades each node by how high its degree is.
+ */
 function barShadeByDegree() {
     var idLen = bar_nodes.length;
     for (var i = 0; i < idLen; i++) {
@@ -51,6 +59,10 @@ function barShadeByDegree() {
     }
 }
 
+/**
+ * Handles actual connection of nodes based on degree
+ * @param  {int} idNum id of the node we're adding onto the network
+ */
 function barabasiConnect(idNum) {
     var sumDegree = bar_sumOfDegrees;
     //var idLen = Object.keys(nodes).length / 2;
@@ -68,6 +80,10 @@ function barabasiConnect(idNum) {
 
 }
 
+/**
+ * Implements barabasi algorithm to add as many nodes as desired, updates the visualization
+ * @param  {int} vertNum number of nodes to be added using algorithm
+ */
 function createBarabasi(vertNum) {
     vertNum = parseInt(vertNum);
     var idLen = bar_nodes.length;
@@ -84,7 +100,9 @@ function createBarabasi(vertNum) {
 }
 
 
-
+/**
+ * Writes Clustering Coefficient and Degree to each nodes title.
+ */
 function barabasiWritedata() {
     var idLen = bar_nodes.length;
     var arr = new Array(5);
@@ -128,7 +146,11 @@ function barabasiWritedata() {
     document.getElementById("baraNodes").textContent="# of Nodes: " + bar_nodes.length;
 }
 
-
+/**
+ * Calculates local clustering coefficient by comparing connected nodes of origin node and neighborhood nodes
+ * @param  {node} currNode a given node to be evaluated for clustering coefficient
+ * @return {float}     local clustering coefficient of current node
+ */
 function bar_ClusteringCount(currNode) {
     var totalE = 0;
     var atMost;
@@ -166,7 +188,9 @@ function bar_ClusteringCount(currNode) {
 }
 
 
-
+/**
+ * Draws the degree distribution using canvas js, takes bar_degreeDist as data
+ */
 function drawBarabasiDistribution() {
     var bar_chart = new CanvasJS.Chart("barabasiGraph", {
         animationEnabled: true,
@@ -197,7 +221,9 @@ function drawBarabasiDistribution() {
 }
 
 
-
+/**
+ * Initializes the network drawing along with global variables. Contains options for vis network drawing as well.
+ */
 function drawBarabasi() {
     bar_shadowState = false;
     bar_ClusterSum = 0;
